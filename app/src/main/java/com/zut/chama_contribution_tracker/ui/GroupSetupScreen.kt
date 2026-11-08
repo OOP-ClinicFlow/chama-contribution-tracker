@@ -4,19 +4,21 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.zut.chama_contribution_tracker.viewmodel.GroupSetupViewModel
 
 @Composable
 fun GroupSetupScreen(
-    viewModel: GroupSetupViewModel = viewModel(),
+    viewModel: GroupSetupViewModel,
     onContinue: () -> Unit = {}
 ) {
-    var memberName by remember { mutableStateOf("") }
-    var memberPhone by remember { mutableStateOf("") }
+    // This is how you read StateFlow in Compose
+    val uiState by viewModel.uiState.collectAsState()
 
     Column(
         modifier = Modifier
@@ -30,9 +32,9 @@ fun GroupSetupScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Group Name
+        // 1. Group Name - from your ViewModel
         OutlinedTextField(
-            value = viewModel.groupName,
+            value = uiState.groupName,
             onValueChange = { viewModel.onGroupNameChange(it) },
             label = { Text("Group Name") },
             modifier = Modifier.fillMaxWidth(),
@@ -41,10 +43,10 @@ fun GroupSetupScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Member Name
+        // 2. Member Name
         OutlinedTextField(
-            value = memberName,
-            onValueChange = { memberName = it },
+            value = uiState.memberName,
+            onValueChange = { viewModel.onMemberNameChange(it) },
             label = { Text("Member Name") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
@@ -52,10 +54,10 @@ fun GroupSetupScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Member Phone
+        // 3. Member Phone
         OutlinedTextField(
-            value = memberPhone,
-            onValueChange = { memberPhone = it },
+            value = uiState.memberPhone,
+            onValueChange = { viewModel.onMemberPhoneChange(it) },
             label = { Text("Member Phone") },
             placeholder = { Text("e.g. 0977123456 or +260977123456") },
             modifier = Modifier.fillMaxWidth(),
@@ -64,8 +66,8 @@ fun GroupSetupScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Exact error messages from spec
-        viewModel.errorMessage?.let { error ->
+        // Error from ViewModel
+        uiState.errorMessage?.let { error ->
             Text(
                 text = error,
                 color = Color.Red,
@@ -75,14 +77,7 @@ fun GroupSetupScreen(
         }
 
         Button(
-            onClick = {
-                viewModel.addMember(memberName, memberPhone)
-                // Clear fields only if no error
-                if (viewModel.errorMessage == null) {
-                    memberName = ""
-                    memberPhone = ""
-                }
-            },
+            onClick = { viewModel.addMember() },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Add Member")
@@ -91,18 +86,18 @@ fun GroupSetupScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Members (${viewModel.members.size})",
+            text = "Members (${uiState.addedMembers.size})",
             style = MaterialTheme.typography.titleMedium
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Real-time list
+        // Real-time list from ViewModel
         LazyColumn(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(viewModel.members) { member ->
+            items(uiState.addedMembers) { member ->
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(text = member.name, style = MaterialTheme.typography.bodyLarge)
@@ -114,10 +109,10 @@ fun GroupSetupScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Continue button - only enabled after at least 1 member
+        // Continue - only enabled after at least 1 member
         Button(
             onClick = { onContinue() },
-            enabled = viewModel.members.isNotEmpty(),
+            enabled = uiState.addedMembers.isNotEmpty(),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Continue")
