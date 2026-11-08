@@ -44,12 +44,12 @@ class AddContributionViewModel(
     fun save() {
         val state = _uiState.value
         if (state.selectedMemberId == null) {
-            _uiState.value = state.copy(errorMessage = "Please select a member")
+            _uiState.value = state.copy(errorMessage = "Please select member")
             return
         }
         val amountValue = state.amount.toDoubleOrNull()
         if (amountValue == null || amountValue <= 0) {
-            _uiState.value = state.copy(errorMessage = "Amount must be greater than zero")
+            _uiState.value = state.copy(errorMessage = "Amount must be > 0")
             return
         }
         viewModelScope.launch {
