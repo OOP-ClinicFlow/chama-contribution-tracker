@@ -21,7 +21,8 @@ import java.util.Locale
 @Composable
 fun AddContributionScreen(
     viewModel: AddContributionViewModel,
-    onSaved: () -> Unit = {}
+    onSaved: () -> Unit = {},
+    onBack: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val members by viewModel.members.collectAsState()
@@ -37,17 +38,26 @@ fun AddContributionScreen(
         if (state.saved) onSaved()
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text(
-            "Add Contribution",
-            style = MaterialTheme.typography.headlineMedium
-        )
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Add Contribution") },
+                navigationIcon = {
+                    TextButton(onClick = onBack) {
+                        Text("Back")
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
 
         ExposedDropdownMenuBox(
             expanded = expanded,
@@ -140,3 +150,7 @@ fun AddContributionScreen(
         }
     }
 }
+}
+
+
+
