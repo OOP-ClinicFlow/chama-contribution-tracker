@@ -8,112 +8,111 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.zut.chama_contribution_tracker.data.ChamaRepository
-import com.zut.chama_contribution_tracker.viewmodel.DashboardViewModel
 import com.zut.chama_contribution_tracker.viewmodel.AddContributionViewModel
+import com.zut.chama_contribution_tracker.viewmodel.DashboardViewModel
+import com.zut.chama_contribution_tracker.viewmodel.GroupSetupViewModel
+import com.zut.chama_contribution_tracker.viewmodel.MemberListViewModel
 
 @Composable
 fun AppNavigation(repository: ChamaRepository) {
 
-    var showAddContribution by remember { mutableStateOf(false) }
-    var showReminderSettings by remember { mutableStateOf(false) }
+    val navController = rememberNavController()
 
-    val addContributionViewModel = remember {
-        AddContributionViewModel(repository)
-    }
-
-    val viewModel = remember {
-        DashboardViewModel(repository)
-    }
-
-    val groupTotal by viewModel.groupTotal.collectAsState()
-    val recentContributions by viewModel.recentContributions.collectAsState()
-
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+    NavHost(
+        navController = navController,
+        startDestination = "setup"
     ) {
-        when {
-            showAddContribution -> {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    TextButton(onClick = { showAddContribution = false }) {
-                        Text("Back to Dashboard")
-                    }
 
-                    AddContributionScreen(
-                        viewModel = addContributionViewModel,
-                        onSaved = { showAddContribution = false }
-                    )
-                }
-            }
+        // 1. Group Setup
+        composable("setup") {
 
-            showReminderSettings -> {
-                ReminderSettingsScreen(
-                    onBack = { showReminderSettings = false }
-                )
-            }
-
-            else -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "Chama Contribution Tracker",
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Card(modifier = Modifier.fillMaxWidth()) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(
-                                text = "Group Total",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(
-                                text = "ZMW $groupTotal",
-                                style = MaterialTheme.typography.headlineLarge
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Button(
-                        onClick = { showAddContribution = true },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Add Contribution")
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Button(
-                        onClick = { showReminderSettings = true },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Reminder Settings")
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        text = "Recent Contributions",
-                        style = MaterialTheme.typography.titleLarge
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    if (recentContributions.isEmpty()) {
-                        Text("No contributions yet.")
-                    } else {
-                        for (contribution in recentContributions) {
-                            Text("Amount: ZMW ${contribution.amount}")
-                        }
+            val setupViewModel: GroupSetupViewModel = viewModel(
+                factory = viewModelFactory {
+                    initializer {
+                        GroupSetupViewModel(repository)
                     }
                 }
-            }
+            )
+
+            GroupSetupScreen(
+                viewModel = setupViewModel,
+                onContinue = {
+                    navController.navigate("members")
+                }
+            )
+        }
+
+        // 2. Member List
+        composable("members") {
+
+            val memberListViewModel: MemberListViewModel = viewModel(
+                factory = viewModelFactory {
+                    initializer {
+                        MemberListViewModel(repository)
+                    }
+                }
+            )
+
+            MemberListScreen(
+                viewModel = memberListViewModel,
+                onAddContributionClick = {
+                    navController.navigate("add_contribution")
+                },
+                onOpenDashboard = {
+                    navController.navigate("dashboard")
+                }
+            )
+        }
+
+        // 3. Add Contribution
+        composable("add_contribution") {
+
+            val addContributionViewModel: AddContributionViewModel = viewModel(
+                factory = viewModelFactory {
+                    initializer {
+                        AddContributionViewModel(repository)
+                    }
+                }
+            )
+
+            AddContributionScreen(
+                viewModel = addContributionViewModel,
+                onSaved = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        // 4. Dashboard
+        composable("dashboard") {
+
+            val dashboardViewModel: DashboardViewModel = viewModel(
+                factory = viewModelFactory {
+                    initializer {
+                        DashboardViewModel(repository)
+                    }
+                }
+            )
+
+            DashboardScreen(
+                viewModel = dashboardViewModel,
+                onBackToMembers = {
+                    navController.popBackStack()
+                },
+                onOpenReminderSettings = {
+                    navController.navigate("reminder_settings")
+                }
+            )
+        }
+
+        // 5. Scheduled Reminder Settings
+        composable("reminder_settings") {
+
+            ReminderSettingsScreen(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }
