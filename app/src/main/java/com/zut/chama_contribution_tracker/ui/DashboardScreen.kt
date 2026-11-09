@@ -19,7 +19,8 @@ import java.util.Locale
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel,
-    onBackToMembers: () -> Unit
+    onBackToMembers: () -> Unit,
+    onOpenReminderSettings: () -> Unit
 ) {
     val total by viewModel.groupTotal.collectAsState()
     val recent by viewModel.recentContributions.collectAsState()
@@ -87,9 +88,13 @@ fun DashboardScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        // Member 2's Notification Button (Research Requirement)
-        ContributionReminderButton()
+// Scheduled reminder settings
+        OutlinedButton(
+            onClick = onOpenReminderSettings,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Scheduled Reminder Settings")
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
