@@ -8,14 +8,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
-class MemberListViewModel(
-    private val repository: ChamaRepository
-) : ViewModel() {
-
+class MemberListViewModel(repository: ChamaRepository) : ViewModel() {
     val members: StateFlow<List<Member>> = repository.getAllMembers()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 }
