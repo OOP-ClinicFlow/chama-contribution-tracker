@@ -1,7 +1,6 @@
 package com.zut.chama_contribution_tracker.ui
 
 import android.Manifest
-import android.R
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -9,7 +8,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresPermission
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,7 +18,6 @@ import androidx.core.content.ContextCompat
 
 private const val CHANNEL_ID = "contribution_reminders"
 
-@RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
 private fun showContributionReminder(context: Context) {
     val manager = context.getSystemService(
         Context.NOTIFICATION_SERVICE
@@ -36,7 +33,7 @@ private fun showContributionReminder(context: Context) {
     }
 
     val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-        .setSmallIcon(R.drawable.ic_dialog_info)
+        .setSmallIcon(android.R.drawable.ic_dialog_info)
         .setContentTitle("Chama Tracker")
         .setContentText("Time to record this week's contributions!")
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -53,7 +50,7 @@ fun ContributionReminderButton() {
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) @androidx.annotation.RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS) { granted ->
+    ) { granted ->
         if (granted) {
             showContributionReminder(context)
         }

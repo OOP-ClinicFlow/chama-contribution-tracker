@@ -57,6 +57,8 @@ dependencies {
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
+    // workmanager
+    implementation("androidx.work:work-runtime-ktx:2.10.5")
 
     // Navigation and ViewModel compose
     implementation("androidx.navigation:navigation-compose:2.8.5")
