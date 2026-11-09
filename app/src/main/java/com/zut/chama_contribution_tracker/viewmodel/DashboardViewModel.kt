@@ -9,9 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class DashboardViewModel(
-    private val repository: ChamaRepository
-) : ViewModel() {
+class DashboardViewModel(private val repository: ChamaRepository) : ViewModel() {
 
     private val _groupTotal = MutableStateFlow(0.0)
     val groupTotal: StateFlow<Double> = _groupTotal.asStateFlow()
@@ -20,9 +18,11 @@ class DashboardViewModel(
     val recentContributions: StateFlow<List<Contribution>> = _recentContributions.asStateFlow()
 
     init {
+        // Fetch total once
         viewModelScope.launch {
             _groupTotal.value = repository.getGroupTotal()
         }
+        // Observe recent contributions
         viewModelScope.launch {
             repository.getAllContributions().collect { list ->
                 _recentContributions.value = list.take(5)

@@ -1,10 +1,12 @@
 package com.zut.chama_contribution_tracker.ui
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.zut.chama_contribution_tracker.data.ChamaRepository
 import com.zut.chama_contribution_tracker.viewmodel.DashboardViewModel
 import com.zut.chama_contribution_tracker.viewmodel.AddContributionViewModel
