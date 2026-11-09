@@ -2,6 +2,8 @@
 package com.zut.chama_contribution_tracker.ui
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -16,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -204,6 +208,56 @@ fun ReminderSettingsScreen(onBack: () -> Unit) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Save Reminder Settings")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedButton(
+            onClick = {
+                val hasPermission = Build.VERSION.SDK_INT < 33 ||
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+
+                if (!hasPermission) {
+                    permissionLauncher.launch(
+                        Manifest.permission.POST_NOTIFICATIONS
+                    )
+                    message = "Please allow notifications to send a demo notification."
+                } else {
+                    val manager = context.getSystemService(
+                        Context.NOTIFICATION_SERVICE
+                    ) as NotificationManager
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        val channel = NotificationChannel(
+                            "contribution_reminders",
+                            "Contribution Reminders",
+                            NotificationManager.IMPORTANCE_DEFAULT
+                        )
+                        manager.createNotificationChannel(channel)
+                    }
+
+                    val notification = NotificationCompat.Builder(
+                        context,
+                        "contribution_reminders"
+                    )
+                        .setSmallIcon(android.R.drawable.ic_dialog_info)
+                        .setContentTitle("Chama Tracker (Demo)")
+                        .setContentText("Demo: Today is your chama contribution day. Remember to record it!")
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                        .setAutoCancel(true)
+                        .build()
+
+                    NotificationManagerCompat.from(context)
+                        .notify(1002, notification)
+                    message = "Demo notification sent successfully."
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Send Demo Notification")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
