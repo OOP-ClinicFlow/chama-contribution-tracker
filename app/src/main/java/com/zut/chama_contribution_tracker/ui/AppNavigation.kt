@@ -1,46 +1,52 @@
 package com.zut.chama_contribution_tracker.ui
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.zut.chama_contribution_tracker.data.ChamaRepository
-import com.zut.chama_contribution_tracker.viewmodel.DashboardViewModel
+import com.zut.chama_contribution_tracker.viewmodel.*
 
 @Composable
 fun AppNavigation(repository: ChamaRepository) {
-    val viewModel = remember { DashboardViewModel(repository) }
-    val groupTotal by viewModel.groupTotal.collectAsState()
-    val recentContributions by viewModel.recentContributions.collectAsState()
+    val navController = rememberNavController()
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Text(text = "Chama Contribution Tracker", style = MaterialTheme.typography.headlineMedium)
-            Spacer(modifier = Modifier.height(16.dp))
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = "Group Total", style = MaterialTheme.typography.titleMedium)
-                    Text(text = "ZMW $groupTotal", style = MaterialTheme.typography.headlineLarge)
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Recent Contributions", style = MaterialTheme.typography.titleLarge)
-            Spacer(modifier = Modifier.height(8.dp))
-            if (recentContributions.isEmpty()) {
-                Text(text = "No contributions yet.")
-            } else {
-                for (contribution in recentContributions) {
-                    Text(text = "Amount: ZMW ${contribution.amount}")
-                }
-            }
+    NavHost(navController = navController, startDestination = "setup") {
+
+        composable("setup") {
+            val vm: GroupSetupViewModel = viewModel(factory = viewModelFactory { initializer { GroupSetupViewModel(repository) } })
+            GroupSetupScreen(
+                viewModel = vm,
+                onContinue = { navController.navigate("list") }
+            )
+        }
+
+        composable("list") {
+            val vm: MemberListViewModel = viewModel(factory = viewModelFactory { initializer { MemberListViewModel(repository) } })
+            MemberListScreen(
+                viewModel = vm,
+                onAddContributionClick = { navController.navigate("add") },
+                onOpenDashboard = { navController.navigate("dashboard") }
+            )
+        }
+
+        composable("add") {
+            val vm: AddContributionViewModel = viewModel(factory = viewModelFactory { initializer { AddContributionViewModel(repository) } })
+            AddContributionScreen(
+                viewModel = vm,
+                onSaved = { navController.popBackStack() }
+            )
+        }
+
+        composable("dashboard") {
+            val vm: DashboardViewModel = viewModel(factory = viewModelFactory { initializer { DashboardViewModel(repository) } })
+            DashboardScreen(
+                viewModel = vm,
+                onBackToMembers = { navController.popBackStack() }
+            )
         }
     }
 }
