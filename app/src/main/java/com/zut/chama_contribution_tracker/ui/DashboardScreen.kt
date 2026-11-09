@@ -15,7 +15,8 @@ import java.util.Locale
 fun DashboardScreen(
     viewModel: DashboardViewModel,
     onNavigateToAddContribution: () -> Unit = {},
-    onNavigateToGroupSetup: () -> Unit = {}
+    onNavigateToGroupSetup: () -> Unit = {},
+    onNavigateToReminderSettings: () -> Unit = {}
 ) {
     val groupTotal by viewModel.groupTotal.collectAsState()
     val recentContributions by viewModel.recentContributions.collectAsState()
@@ -49,11 +50,12 @@ fun DashboardScreen(
                 text = "Chama Contribution Tracker",
                 style = MaterialTheme.typography.headlineMedium
             )
+
             Spacer(modifier = Modifier.height(16.dp))
 
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = "Group Total", style = MaterialTheme.typography.titleMedium)
+                    Text("Group Total", style = MaterialTheme.typography.titleMedium)
                     Text(
                         text = "ZMW ${String.format(Locale.getDefault(), "%.2f", groupTotal)}",
                         style = MaterialTheme.typography.headlineLarge
@@ -63,11 +65,16 @@ fun DashboardScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            ContributionReminderButton()
+            OutlinedButton(
+                onClick = onNavigateToReminderSettings,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Scheduled Reminder Settings")
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = "Recent Contributions", style = MaterialTheme.typography.titleLarge)
+            Text("Recent Contributions", style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.height(8.dp))
 
             if (recentContributions.isEmpty()) {
@@ -88,10 +95,7 @@ fun DashboardScreen(
                                     .padding(12.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(
-                                    text = "Amount",
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
+                                Text("Amount")
                                 Text(
                                     text = "ZMW ${contribution.amount}",
                                     style = MaterialTheme.typography.titleMedium

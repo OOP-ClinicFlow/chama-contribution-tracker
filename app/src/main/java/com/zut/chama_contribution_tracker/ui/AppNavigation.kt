@@ -14,6 +14,7 @@ object Screen {
     const val GroupSetup = "group_setup"
     const val Dashboard = "dashboard"
     const val AddContribution = "add_contribution"
+    const val ReminderSettings = "reminder_settings"
 }
 
 @Composable
@@ -25,7 +26,9 @@ fun AppNavigation(repository: ChamaRepository) {
         startDestination = Screen.GroupSetup
     ) {
         composable(Screen.GroupSetup) {
-            val viewModel = remember(repository) { GroupSetupViewModel(repository) }
+            val viewModel = remember(repository) {
+                GroupSetupViewModel(repository)
+            }
             GroupSetupScreen(
                 viewModel = viewModel,
                 onContinue = {
@@ -35,7 +38,9 @@ fun AppNavigation(repository: ChamaRepository) {
         }
 
         composable(Screen.Dashboard) {
-            val viewModel = remember(repository) { DashboardViewModel(repository) }
+            val viewModel = remember(repository) {
+                DashboardViewModel(repository)
+            }
             DashboardScreen(
                 viewModel = viewModel,
                 onNavigateToAddContribution = {
@@ -43,17 +48,30 @@ fun AppNavigation(repository: ChamaRepository) {
                 },
                 onNavigateToGroupSetup = {
                     navController.navigate(Screen.GroupSetup)
+                },
+                onNavigateToReminderSettings = {
+                    navController.navigate(Screen.ReminderSettings)
                 }
             )
         }
 
         composable(Screen.AddContribution) {
-            val viewModel = remember(repository) { AddContributionViewModel(repository) }
+            val viewModel = remember(repository) {
+                AddContributionViewModel(repository)
+            }
             AddContributionScreen(
                 viewModel = viewModel,
                 onSaved = {
                     navController.popBackStack()
                 },
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Screen.ReminderSettings) {
+            ReminderSettingsScreen(
                 onBack = {
                     navController.popBackStack()
                 }
