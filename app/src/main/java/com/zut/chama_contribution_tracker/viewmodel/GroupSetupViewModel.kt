@@ -23,14 +23,6 @@ class GroupSetupViewModel(
     private val _uiState = MutableStateFlow(GroupSetupUiState())
     val uiState: StateFlow<GroupSetupUiState> = _uiState
 
-    init {
-        viewModelScope.launch {
-            repository.getAllMembers().collect { members ->
-                _uiState.value = _uiState.value.copy(addedMembers = members)
-            }
-        }
-    }
-
     fun onGroupNameChange(value: String) {
         _uiState.value = _uiState.value.copy(groupName = value, errorMessage = null)
     }
