@@ -1,46 +1,81 @@
 package com.zut.chama_contribution_tracker.ui
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.zut.chama_contribution_tracker.data.ChamaRepository
+import com.zut.chama_contribution_tracker.viewmodel.AddContributionViewModel
 import com.zut.chama_contribution_tracker.viewmodel.DashboardViewModel
+import com.zut.chama_contribution_tracker.viewmodel.GroupSetupViewModel
+
+object Screen {
+    const val GroupSetup = "group_setup"
+    const val Dashboard = "dashboard"
+    const val AddContribution = "add_contribution"
+    const val ReminderSettings = "reminder_settings"
+}
 
 @Composable
 fun AppNavigation(repository: ChamaRepository) {
-    val viewModel = remember { DashboardViewModel(repository) }
-    val groupTotal by viewModel.groupTotal.collectAsState()
-    val recentContributions by viewModel.recentContributions.collectAsState()
+    val navController = rememberNavController()
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+    NavHost(
+        navController = navController,
+        startDestination = Screen.GroupSetup
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Text(text = "Chama Contribution Tracker", style = MaterialTheme.typography.headlineMedium)
-            Spacer(modifier = Modifier.height(16.dp))
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = "Group Total", style = MaterialTheme.typography.titleMedium)
-                    Text(text = "ZMW $groupTotal", style = MaterialTheme.typography.headlineLarge)
-                }
+        composable(Screen.GroupSetup) {
+            val viewModel = remember(repository) {
+                GroupSetupViewModel(repository)
             }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Recent Contributions", style = MaterialTheme.typography.titleLarge)
-            Spacer(modifier = Modifier.height(8.dp))
-            if (recentContributions.isEmpty()) {
-                Text(text = "No contributions yet.")
-            } else {
-                for (contribution in recentContributions) {
-                    Text(text = "Amount: ZMW ${contribution.amount}")
+            GroupSetupScreen(
+                viewModel = viewModel,
+                onContinue = {
+                    navController.navigate(Screen.Dashboard)
                 }
+            )
+        }
+
+        composable(Screen.Dashboard) {
+            val viewModel = remember(repository) {
+                DashboardViewModel(repository)
             }
+            DashboardScreen(
+                viewModel = viewModel,
+                onNavigateToAddContribution = {
+                    navController.navigate(Screen.AddContribution)
+                },
+                onNavigateToGroupSetup = {
+                    navController.navigate(Screen.GroupSetup)
+                },
+                onNavigateToReminderSettings = {
+                    navController.navigate(Screen.ReminderSettings)
+                }
+            )
+        }
+
+        composable(Screen.AddContribution) {
+            val viewModel = remember(repository) {
+                AddContributionViewModel(repository)
+            }
+            AddContributionScreen(
+                viewModel = viewModel,
+                onSaved = {
+                    navController.popBackStack()
+                },
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Screen.ReminderSettings) {
+            ReminderSettingsScreen(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

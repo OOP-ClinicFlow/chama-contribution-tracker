@@ -3,8 +3,8 @@ package com.zut.chama_contribution_tracker.ui
 import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -44,7 +44,7 @@ fun AddContributionScreen(
                 title = { Text("Add Contribution") },
                 navigationIcon = {
                     TextButton(onClick = onBack) {
-                        Text("Back")
+                        Text("← Back")
                     }
                 }
             )
@@ -58,99 +58,95 @@ fun AddContributionScreen(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
-        ) {
-            OutlinedTextField(
-                value = selectedMember?.name ?: "",
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Select Member") },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded)
-                },
-                modifier = Modifier
-                    .menuAnchor()
-                    .fillMaxWidth()
-            )
-
-            ExposedDropdownMenu(
+            ExposedDropdownMenuBox(
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
+                onExpandedChange = { expanded = !expanded }
             ) {
-                members.forEach { member ->
-                    DropdownMenuItem(
-                        text = { Text(member.name) },
-                        onClick = {
-                            viewModel.onMemberSelected(member.id)
-                            expanded = false
-                        }
-                    )
+                OutlinedTextField(
+                    value = selectedMember?.name ?: "",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Select Member") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded)
+                    },
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    members.forEach { member ->
+                        DropdownMenuItem(
+                            text = { Text(member.name) },
+                            onClick = {
+                                viewModel.onMemberSelected(member.id)
+                                expanded = false
+                            }
+                        )
+                    }
                 }
             }
-        }
 
-        OutlinedTextField(
-            value = state.amount,
-            onValueChange = viewModel::onAmountChange,
-            label = { Text("Amount (ZMW)") },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Decimal
-            ),
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        val dateText = SimpleDateFormat(
-            "dd MMMM yyyy",
-            Locale.getDefault()
-        ).format(Date(state.date))
-
-        OutlinedButton(
-            onClick = {
-                val calendar = Calendar.getInstance().apply {
-                    timeInMillis = state.date
-                }
-
-                DatePickerDialog(
-                    context,
-                    { _, year, month, day ->
-                        val selectedDate = Calendar.getInstance().apply {
-                            set(year, month, day, 12, 0, 0)
-                            set(Calendar.MILLISECOND, 0)
-                        }
-                        viewModel.onDateChange(
-                            selectedDate.timeInMillis
-                        )
-                    },
-                    calendar.get(Calendar.YEAR),
-                    calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH)
-                ).show()
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Date: $dateText")
-        }
-
-        state.errorMessage?.let {
-            Text(
-                text = it,
-                color = MaterialTheme.colorScheme.error
+            OutlinedTextField(
+                value = state.amount,
+                onValueChange = viewModel::onAmountChange,
+                label = { Text("Amount (ZMW)") },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal
+                ),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
             )
-        }
 
-        Button(
-            onClick = viewModel::save,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Save Contribution")
+            val dateText = SimpleDateFormat(
+                "dd MMMM yyyy",
+                Locale.getDefault()
+            ).format(Date(state.date))
+
+            OutlinedButton(
+                onClick = {
+                    val calendar = Calendar.getInstance().apply {
+                        timeInMillis = state.date
+                    }
+
+                    DatePickerDialog(
+                        context,
+                        { _, year, month, day ->
+                            val selectedDate = Calendar.getInstance().apply {
+                                set(year, month, day, 12, 0, 0)
+                                set(Calendar.MILLISECOND, 0)
+                            }
+                            viewModel.onDateChange(
+                                selectedDate.timeInMillis
+                            )
+                        },
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH)
+                    ).show()
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Date: $dateText")
+            }
+
+            state.errorMessage?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
+            Button(
+                onClick = viewModel::save,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Save Contribution")
+            }
         }
     }
 }
-}
-
-
-
